@@ -138,8 +138,8 @@ then run the following command:
 ```bash
 py manage.py runserver
 ```
-
 ---
+- Please add your secret key to `SECRET_KEY` in `settings.py`
 
 ## 📄 License
 
