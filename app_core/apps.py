@@ -1,0 +1,10 @@
+from django.apps import AppConfig
+
+
+class AppCoreConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "app_core"
+    verbose_name = "Core & Maintenance"
+
+    def ready(self):
+        import app_core.signals  # noqa: F401

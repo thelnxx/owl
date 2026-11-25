@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="card bg-body-tertiary border-secondary-subtle shadow-sm">
+    <div class="card-header border-secondary-subtle d-flex justify-content-between align-items-center py-3">
+        <h1 class="h5 fw-bold mb-0">
+            <i class="fa-solid fa-sliders text-info me-2"></i>Edit Profile
+        </h1>
+        <a href="{% url 'app_account:profile' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i>Back to Profile
+        </a>
+    </div>
+    <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <!-- Avatar Preview & Upload -->
+            <div class="d-flex flex-column flex-sm-row align-items-center gap-3 mb-4 pb-3 border-bottom border-secondary-subtle">
+                <img src="{{ user.avatar_url }}" alt="{{ user.username }}" id="avatarPreview"
+                     class="rounded-circle border border-2 border-info object-fit-cover"
+                     width="88" height="88">
+                <div class="flex-grow-1 w-100">
+                    <label for="{{ form.avatar.id_for_label }}" class="form-label fw-semibold mb-1">
+                        Profile Avatar
+                    </label>
+                    {{ form.avatar }}
+                    <div class="form-text">Supported formats: JPG, PNG, WEBP (Max 2 MB).</div>
+                    {% for error in form.avatar.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">First Name</label>
+                    {{ form.name }}
+                    {% for error in form.name.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="col-sm-6">
+                    <label for="{{ form.surname.id_for_label }}" class="form-label fw-semibold">Last Name</label>
+                    {{ form.surname }}
+                    {% for error in form.surname.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_username" class="form-label fw-semibold">Username</label>
+                {{ form.username }}
+                <div id="usernameFeedback" class="small mt-1"></div>
+                {% for error in form.username.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-4">
+                <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">Email Address</label>
+                {{ form.email }}
+                {% for error in form.email.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'app_account:profile' %}" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" id="profileSaveBtn" class="btn btn-info text-dark fw-semibold">
+                    <i class="fa-solid fa-floppy-disk me-1"></i>Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Live Avatar Preview
+    const avatarInput = document.getElementById("{{ form.avatar.id_for_label }}");
+    const avatarPreview = document.getElementById("avatarPreview");
+    if (avatarInput && avatarPreview) {
+        avatarInput.addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    avatarPreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Live Username Check
+    const usernameInput = document.getElementById("id_username");
+    const feedbackEl = document.getElementById("usernameFeedback");
+    const saveBtn = document.getElementById("profileSaveBtn");
+    const checkUrl = "{% url 'app_account:check_username' %}";
+    let debounceTimer = null;
+
+    if (usernameInput && feedbackEl) {
+        usernameInput.addEventListener("input", function () {
+            clearTimeout(debounceTimer);
+            const value = usernameInput.value.trim();
+
+            if (!value) {
+                usernameInput.classList.add("is-invalid");
+                feedbackEl.className = "small mt-1 text-danger";
+                feedbackEl.textContent = "Username cannot be empty.";
+                if (saveBtn) saveBtn.disabled = true;
+                return;
+            }
+
+            debounceTimer = setTimeout(function () {
+                fetch(`${checkUrl}?username=${encodeURIComponent(value)}`)
+                    .then((res) => res.json())
+                    .then((data) => {
+                        usernameInput.classList.remove("is-valid", "is-invalid");
+                        if (data.available) {
+                            usernameInput.classList.add("is-valid");
+                            feedbackEl.className = "small mt-1 text-success";
+                            feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check me-1"></i>${data.message}`;
+                            if (saveBtn) saveBtn.disabled = false;
+                        } else {
+                            usernameInput.classList.add("is-invalid");
+                            feedbackEl.className = "small mt-1 text-danger";
+                            feedbackEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i>${data.message}`;
+                            if (saveBtn) saveBtn.disabled = true;
+                        }
+                    })
+                    .catch(() => {});
+            }, 300);
+        });
+    }
+});
+</script>
+{% endblock %}

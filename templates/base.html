@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link rel="shortcut icon" href="{% static 'images/Owl.ico' %}" type="image/x-icon">
+    <title>{% block title %}{{ site_settings.site_title|default:"LnX Platform" }}{% endblock %}</title>
+
+    <!-- Prevent white flash on page load: apply saved theme before CSS renders -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("lnx_theme") || "dark";
+            document.documentElement.setAttribute("data-bs-theme", savedTheme);
+        })();
+    </script>
+
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", function () {
+                navigator.serviceWorker.register("/sw.js").catch(function () {});
+            });
+        }
+    </script>
+
+
+    <!-- Local Bootstrap v5.3.8 CSS -->
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap_icons.min.css' %}" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link href="{% static 'css/font_awesome.css' %}" rel="stylesheet">
+    <!-- Optional Custom Transitions -->
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100 bg-body text-body">
+
+    <!-- Top Navigation Bar -->
+    {% include "partials/_navbar.html" %}
+
+    <!-- Flash Messages -->
+    <div class="container-fluid px-3 px-lg-4 mt-3">
+        {% include "partials/_messages.html" %}
+    </div>
+
+    <!-- Main Layout Area -->
+    <main class="flex-grow-1 py-3">
+        {% block main_layout %}
+        <div class="container-fluid px-3 px-lg-4">
+            <div class="row g-3">
+
+                <!-- Left Sidebar (col-lg-3): Article Categories -->
+                <aside class="col-lg-3 order-2 order-lg-1">
+                    {% include "partials/_categories.html" %}
+                </aside>
+
+                <!-- Center Content (col-lg-7) -->
+                <section class="col-lg-7 order-1 order-lg-2">
+                    {% block content %}{% endblock %}
+                </section>
+
+                <!-- Right Sidebar (col-lg-2): Random Article Snippets -->
+                <aside class="col-lg-2 order-3">
+                    {% include "partials/_random_quotes.html" %}
+                </aside>
+
+            </div>
+        </div>
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% include "partials/_footer.html" %}
+
+    <!-- Session Timeout Modal (Authenticated Users Only) -->
+    {% if user.is_authenticated %}
+        {% include "partials/_session_modal.html" %}
+    {% endif %}
+
+    <!-- Local Bootstrap v5.3.8 JS Bundle -->
+    <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
+    <!-- Theme Switcher -->
+    <script src="{% static 'js/theme_switcher.js' %}"></script>
+
+    {% if user.is_authenticated %}
+    <script>
+        window.SESSION_CONFIG = {
+            timeoutSeconds: {{ SESSION_COOKIE_AGE|default:14400 }},
+            logoutUrl: "{% url 'app_account:logout' %}",
+            loginUrl: "{% url 'app_account:login' %}"
+        };
+    </script>
+    <script src="{% static 'js/session_timer.js' %}"></script>
+    {% endif %}
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

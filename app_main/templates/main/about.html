@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}About - {{ site_settings.site_title|default:"LnX Platform" }}{% endblock %}
+
+{% block content %}
+<div class="card bg-body-tertiary border-secondary-subtle shadow-sm">
+    <div class="card-header border-secondary-subtle py-3">
+        <h1 class="h5 fw-bold mb-0">
+            <i class="fa-solid fa-circle-info text-info me-2"></i>About {{ site_settings.site_title|default:"LnX Platform" }}
+        </h1>
+    </div>
+    <div class="card-body p-4">
+        <p class="text-body mb-3">
+            <strong>{{ site_settings.site_title|default:"LnX Platform" }}</strong> is designed around a decoupled, modular architecture where every core feature—from user authentication and technical articles to changelogs and Discord tools—operates as an independent, maintainable unit.
+        </p>
+
+        <h2 class="h6 fw-bold text-uppercase text-info mt-4 mb-3">Core Design Principles</h2>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="p-3 rounded bg-body border border-secondary-subtle h-100">
+                    <div class="fw-semibold mb-1">
+                        <i class="fa-solid fa-cubes text-info me-2"></i>Isolated Modules
+                    </div>
+                    <p class="text-body-secondary small mb-0">
+                        Individual sections can be updated or placed under maintenance without disrupting the rest of the platform.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 rounded bg-body border border-secondary-subtle h-100">
+                    <div class="fw-semibold mb-1">
+                        <i class="fa-solid fa-lock text-warning me-2"></i>Security First
+                    </div>
+                    <p class="text-body-secondary small mb-0">
+                        Strict CSRF protection, HttpOnly cookies, role-based access control, and automated 240-minute session timeouts.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="h6 fw-bold text-uppercase text-info mb-3">Technology Stack</h2>
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            <span class="badge bg-body border border-secondary-subtle text-body px-3 py-2">Python &amp; Django</span>
+            <span class="badge bg-body border border-secondary-subtle text-body px-3 py-2">Bootstrap v5.3.8</span>
+            <span class="badge bg-body border border-secondary-subtle text-body px-3 py-2">Font Awesome</span>
+            <span class="badge bg-body border border-secondary-subtle text-body px-3 py-2">SQLite / Relational DB</span>
+        </div>
+
+        <div class="border-top border-secondary-subtle pt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="text-body-secondary small">Have a question or feedback about the platform?</span>
+            <a href="{% url 'app_main:contact' %}" class="btn btn-sm btn-info text-dark fw-semibold">
+                <i class="fa-solid fa-envelope me-1"></i>Contact Us
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

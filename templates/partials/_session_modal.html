@@ -1,0 +1,25 @@
+<div class="modal fade" id="sessionExpiredModal" data-bs-backdrop="static" data-bs-keyboard="false"
+    tabindex="-1" aria-labelledby="sessionExpiredModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-body border-danger shadow-lg">
+            <div class="modal-header border-secondary-subtle">
+                <h5 class="modal-title text-danger fw-bold" id="sessionExpiredModalLabel">
+                    <i class="fa-solid fa-hourglass-end me-2"></i>Session Expired
+                </h5>
+            </div>
+            <div class="modal-body text-body">
+                <p class="mb-2">
+                    Your 240-minute session has timed out due to inactivity and your account has been logged out automatically for security.
+                </p>
+                <p class="text-body-secondary small mb-0" id="sessionLogoutStatus">
+                    Terminating active server session...
+                </p>
+            </div>
+            <div class="modal-footer border-secondary-subtle">
+                <a href="{% url 'app_account:login' %}" class="btn btn-info text-dark fw-semibold w-100">
+                    <i class="fa-solid fa-right-to-bracket me-1"></i>Log In Again
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,132 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom border-secondary-subtle sticky-top shadow-sm">
+    <div class="container-fluid px-3 px-lg-4">
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/">
+            <i class="fa-solid fa-terminal text-info"></i>
+            <span>{{ site_settings.site_title|default:"LnX Platform" }}</span>
+            {% if site_settings.is_maintenance_mode %}
+                <span class="badge bg-danger ms-1" title="Site-Wide Maintenance Active">MAINTENANCE</span>
+            {% endif %}
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <!-- Dynamic Database Navbar Links -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {% for link in navbar_links %}
+                    {% url link.url_name as resolved_url %}
+                    <li class="nav-item">
+                        {% if not resolved_url %}
+                            <a class="nav-link disabled text-body-secondary d-flex align-items-center gap-1"
+                            href="#" tabindex="-1" aria-disabled="true"
+                            title="Route not configured">
+                                <span>{{ link.title }}</span>
+                                <i class="fa-solid fa-wrench fa-xs text-warning"></i>
+                            </a>
+                        {% elif link.is_disabled %}
+                            {% if user.is_authenticated and user.is_privileged %}
+                                <a class="nav-link {% if request.path == resolved_url %}active fw-semibold text-info{% endif %} d-flex align-items-center gap-1"
+                                href="{{ resolved_url }}"
+                                title="Disabled for regular users (Admin bypass active)">
+                                    <span>{{ link.title }}</span>
+                                    <i class="fa-solid fa-wrench fa-xs text-warning"></i>
+                                </a>
+                            {% else %}
+                                <a class="nav-link disabled text-body-secondary d-flex align-items-center gap-1"
+                                href="#" tabindex="-1" aria-disabled="true"
+                                title="This section is currently under maintenance">
+                                    <span>{{ link.title }}</span>
+                                    <i class="fa-solid fa-wrench fa-xs text-warning"></i>
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <a class="nav-link {% if request.path == resolved_url %}active fw-semibold text-info{% endif %}"
+                            href="{{ resolved_url }}">
+                                {{ link.title }}
+                            </a>
+                        {% endif %}
+                    </li>
+                {% empty %}
+                    <li class="nav-item">
+                        <span class="nav-link disabled text-body-secondary small">
+                            <i class="fa-solid fa-circle-info me-1"></i>No active menu links configured
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <!-- Right Side: Theme Switcher, Live 240-Min Session Timer & User Controls -->
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <!-- Dark / Light Theme Toggle Button -->
+                <button type="button" id="themeToggleBtn" class="btn btn-sm btn-outline-secondary"
+                        title="Toggle Theme" aria-label="Toggle Theme">
+                    <i class="fa-solid fa-sun text-warning" id="themeToggleIcon"></i>
+                </button>
+
+                {% if user.is_authenticated %}
+                    <!-- Live Session Countdown Badge -->
+                    <div id="sessionTimerBadge"
+                        class="badge bg-body-secondary border border-secondary-subtle text-body px-2 py-2 d-flex align-items-center gap-2"
+                        title="Remaining session duration before automatic logout">
+                        <i class="fa-regular fa-clock text-info" id="sessionTimerIcon"></i>
+                        <span class="font-monospace" id="sessionCountdown">--:--:--</span>
+                    </div>
+
+                    <!-- Admin Panel Shortcut for Privileged Roles -->
+                    {% if user.is_privileged %}
+                        <a href="/{{ ADMIN_URL|default:'admin/' }}" class="btn btn-sm btn-outline-warning" title="Admin Panel">
+                            <i class="fa-solid fa-shield-halved me-1"></i>Admin Panel
+                        </a>
+                    {% endif %}
+
+                    <!-- User Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 text-body"
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{{ user.avatar_url }}" alt="{{ user.username }}"
+                                class="rounded-circle object-fit-cover" width="24" height="24">
+                            <span>{{ user.username }}</span>
+                            {% if user.role %}
+                                <span class="badge" style="background-color: {{ user.role.bg_color }}; color: {{ user.role.text_color }};">
+                                    {{ user.role.name }}
+                                </span>
+                            {% endif %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end border-secondary-subtle shadow">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'app_account:profile' %}">
+                                    <i class="fa-regular fa-user me-2"></i>My Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'app_account:profile_edit' %}">
+                                    <i class="fa-solid fa-sliders me-2"></i>Edit Profile
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'app_account:logout' %}" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{% url 'app_account:login' %}" class="btn btn-sm btn-outline-secondary text-body">
+                        <i class="fa-solid fa-right-to-bracket me-1"></i>Login
+                    </a>
+                    <a href="{% url 'app_account:register' %}" class="btn btn-sm btn-info text-dark fw-semibold">
+                        <i class="fa-solid fa-user-plus me-1"></i>Register
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>

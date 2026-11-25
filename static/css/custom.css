@@ -1,0 +1,12 @@
+body,
+.navbar,
+.card,
+.modal-content,
+footer {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.nav-link.disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}

@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Register - {{ site_settings.site_title|default:"LnX Platform" }}{% endblock %}
+
+{% block main_layout %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-5">
+            <div class="card bg-body-tertiary border-secondary-subtle shadow">
+                <div class="card-header border-secondary-subtle text-center py-3">
+                    <h1 class="h4 fw-bold mb-1">
+                        <i class="fa-solid fa-user-plus text-info me-2"></i>Create Account
+                    </h1>
+                    <p class="text-body-secondary small mb-0">Join {{ site_settings.site_title|default:"LnX Platform" }}</p>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger py-2 small">
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-sm-6">
+                                <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">First Name</label>
+                                {{ form.name }}
+                                {% for error in form.name.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="{{ form.surname.id_for_label }}" class="form-label fw-semibold">Last Name</label>
+                                {{ form.surname }}
+                                {% for error in form.surname.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label fw-semibold">
+                                Username <span class="text-body-secondary fw-normal small">(Optional)</span>
+                            </label>
+                            {{ form.username }}
+                            <div id="usernameFeedback" class="small mt-1 text-body-secondary">
+                                Leave blank to auto-generate from your first and last name.
+                            </div>
+                            {% for error in form.username.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">Email Address</label>
+                            {{ form.email }}
+                            {% for error in form.email.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.password1.id_for_label }}" class="form-label fw-semibold">Password</label>
+                            {{ form.password1 }}
+                            {% for error in form.password1.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label fw-semibold">Confirm Password</label>
+                            {{ form.password2 }}
+                            {% for error in form.password2.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="submit" id="registerSubmitBtn" class="btn btn-info text-dark fw-semibold w-100 mt-2">
+                            <i class="fa-solid fa-user-check me-1"></i>Register
+                        </button>
+                    </form>
+                </div>
+                <div class="card-footer border-secondary-subtle text-center py-3 small">
+                    Already have an account?
+                    <a href="{% url 'app_account:login' %}" class="text-info fw-semibold text-decoration-none">
+                        Sign In
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const usernameInput = document.getElementById("id_username");
+    const feedbackEl = document.getElementById("usernameFeedback");
+    const submitBtn = document.getElementById("registerSubmitBtn");
+    const checkUrl = "{% url 'app_account:check_username' %}";
+    let debounceTimer = null;
+
+    if (!usernameInput || !feedbackEl) return;
+
+    usernameInput.addEventListener("input", function () {
+        clearTimeout(debounceTimer);
+        const value = usernameInput.value.trim();
+
+        debounceTimer = setTimeout(function () {
+            fetch(`${checkUrl}?username=${encodeURIComponent(value)}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    usernameInput.classList.remove("is-valid", "is-invalid");
+                    feedbackEl.classList.remove("text-success", "text-danger", "text-body-secondary");
+
+                    if (data.is_empty) {
+                        feedbackEl.classList.add("text-body-secondary");
+                        feedbackEl.textContent = data.message;
+                        if (submitBtn) submitBtn.disabled = false;
+                    } else if (data.available) {
+                        usernameInput.classList.add("is-valid");
+                        feedbackEl.classList.add("text-success");
+                        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check me-1"></i>${data.message}`;
+                        if (submitBtn) submitBtn.disabled = false;
+                    } else {
+                        usernameInput.classList.add("is-invalid");
+                        feedbackEl.classList.add("text-danger");
+                        feedbackEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i>${data.message}`;
+                        if (submitBtn) submitBtn.disabled = true;
+                    }
+                })
+                .catch(() => {});
+        }, 300);
+    });
+});
+</script>
+{% endblock %}

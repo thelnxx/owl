@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Home - {{ site_settings.site_title|default:"LnX Platform" }}{% endblock %}
+
+{% block content %}
+<!-- Hero Welcome Card -->
+<div class="card bg-body-tertiary border-secondary-subtle shadow-sm mb-3">
+    <div class="card-body p-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+            <span class="badge bg-info-subtle text-info border border-info px-2 py-1">
+                <i class="fa-solid fa-bolt me-1"></i>Modular Platform
+            </span>
+            <span class="small text-body-secondary">
+                <i class="fa-solid fa-users me-1 text-info"></i>{{ total_members }} Active Member{{ total_members|pluralize }}
+            </span>
+        </div>
+
+        <h1 class="h3 fw-bold mb-2">
+            Welcome to {{ site_settings.site_title|default:"LnX Platform" }}
+        </h1>
+        <p class="text-body-secondary mb-4">
+            A modular hub built for technical articles, platform changelogs, Discord integrations, and developer utilities.
+        </p>
+
+        <div class="d-flex flex-wrap gap-2">
+            {% if user.is_authenticated %}
+                <a href="{% url 'app_account:profile' %}" class="btn btn-info text-dark fw-semibold">
+                    <i class="fa-regular fa-user me-1"></i>Go to My Profile
+                </a>
+            {% else %}
+                <a href="{% url 'app_account:register' %}" class="btn btn-info text-dark fw-semibold">
+                    <i class="fa-solid fa-user-plus me-1"></i>Get Started
+                </a>
+                <a href="{% url 'app_account:login' %}" class="btn btn-outline-secondary text-body">
+                    <i class="fa-solid fa-right-to-bracket me-1"></i>Sign In
+                </a>
+            {% endif %}
+            <a href="{% url 'app_main:about' %}" class="btn btn-outline-info">
+                <i class="fa-solid fa-circle-info me-1"></i>About Platform
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Platform Modules Overview -->
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card bg-body-tertiary border-secondary-subtle h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-primary-subtle text-primary p-2">
+                        <i class="fa-solid fa-newspaper fa-fw"></i>
+                    </span>
+                    <h2 class="h6 fw-bold mb-0">Articles &amp; Guides</h2>
+                </div>
+                <p class="text-body-secondary small mb-0">
+                    Structured tutorials, technical notes, and categorized documentation organized for fast reading.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card bg-body-tertiary border-secondary-subtle h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-warning-subtle text-warning p-2">
+                        <i class="fa-solid fa-code-branch fa-fw"></i>
+                    </span>
+                    <h2 class="h6 fw-bold mb-0">System Updates</h2>
+                </div>
+                <p class="text-body-secondary small mb-0">
+                    Transparent version logs, new module releases, and real-time service status announcements.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card bg-body-tertiary border-secondary-subtle h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-info-subtle text-info p-2">
+                        <i class="fa-brands fa-discord fa-fw"></i>
+                    </span>
+                    <h2 class="h6 fw-bold mb-0">Discord Ecosystem</h2>
+                </div>
+                <p class="text-body-secondary small mb-0">
+                    Direct integration with community servers, bot status monitoring, and role synchronization. Currently in development process. <span class="bg-info-subtle text-info">Just for Admins Only !</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card bg-body-tertiary border-secondary-subtle h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-success-subtle text-success p-2">
+                        <i class="fa-solid fa-shield-halved fa-fw"></i>
+                    </span>
+                    <h2 class="h6 fw-bold mb-0">Modular Architecture</h2>
+                </div>
+                <p class="text-body-secondary small mb-0">
+                    Independent applications with granular maintenance controls, strict session security, and role-based access.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

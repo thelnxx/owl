@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if active_category %}{{ active_category.name }} - {% endif %}Articles - {{ site_settings.site_title|default:"LnX Platform" }}
+{% endblock %}
+
+{% block content %}
+<!-- Header & Search Bar -->
+<div class="card bg-body-tertiary border-secondary-subtle shadow-sm mb-3">
+    <div class="card-body p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+                <h1 class="h5 fw-bold mb-0">
+                    {% if active_category %}
+                        <i class="{{ active_category.icon }} text-info me-2"></i>{{ active_category.name }}
+                    {% else %}
+                        <i class="fa-solid fa-newspaper text-info me-2"></i>Articles
+                    {% endif %}
+                </h1>
+                {% if active_category and active_category.description %}
+                    <p class="text-body-secondary small mb-0 mt-1">{{ active_category.description }}</p>
+                {% endif %}
+            </div>
+
+            {% if active_category or search_query %}
+                <a href="{% url 'app_articles:list' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fa-solid fa-xmark me-1"></i>Clear Filter
+                </a>
+            {% endif %}
+        </div>
+
+        <form method="get" class="d-flex gap-2">
+            <input type="text" name="q" value="{{ search_query }}" class="form-control form-control-sm"
+                   placeholder="Search articles by title or keyword...">
+            <button type="submit" class="btn btn-sm btn-info text-dark fw-semibold px-3">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Articles Feed -->
+{% for article in page_obj %}
+    <article class="card bg-body-tertiary border-secondary-subtle shadow-sm mb-3">
+        <div class="card-body p-4">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                {% if article.is_featured %}
+                    <span class="badge bg-warning text-dark">
+                        <i class="fa-solid fa-thumbtack me-1"></i>Featured
+                    </span>
+                {% endif %}
+                {% if article.category %}
+                    <a href="{{ article.category.get_absolute_url }}"
+                       class="badge bg-info-subtle text-info border border-info text-decoration-none">
+                        <i class="{{ article.category.icon }} me-1"></i>{{ article.category.name }}
+                    </a>
+                {% endif %}
+                <span class="small text-body-secondary ms-auto">
+                    <i class="fa-regular fa-clock me-1"></i>{{ article.reading_time }} min read
+                </span>
+            </div>
+
+            <h2 class="h5 fw-bold mb-2">
+                <a href="{{ article.get_absolute_url }}" class="text-body text-decoration-none">
+                    {{ article.title }}
+                </a>
+            </h2>
+
+            <p class="text-body-secondary small mb-3">
+                {{ article.summary }}
+            </p>
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center border-top border-secondary-subtle pt-2 small text-body-secondary gap-2">
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <span>
+                        <i class="fa-regular fa-user text-info me-1"></i>Author:
+                        <strong class="text-body">{{ article.author.username|default:"System" }}</strong>
+                    </span>
+                    <span>
+                        <i class="fa-regular fa-calendar me-1"></i>{{ article.created_at|date:"M j, Y - H:i" }}
+                    </span>
+                    <span>
+                        <i class="fa-regular fa-eye me-1"></i>{{ article.views_count }}
+                    </span>
+                </div>
+                <a href="{{ article.get_absolute_url }}" class="btn btn-sm btn-outline-info">
+                    Read Article <i class="fa-solid fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </article>
+{% empty %}
+    <div class="card bg-body-tertiary border-secondary-subtle shadow-sm">
+        <div class="card-body text-center py-5 text-body-secondary">
+            <i class="fa-regular fa-folder-open display-6 d-block mb-3"></i>
+            <h2 class="h6 fw-bold text-body">No Articles Found</h2>
+            <p class="small mb-0">No published articles match your current selection.</p>
+        </div>
+    </div>
+{% endfor %}
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Article pagination" class="mt-4">
+    <ul class="pagination pagination-sm justify-content-center">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Previous</a>
+            </li>
+        {% endif %}
+        <li class="page-item disabled">
+            <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        </li>
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Next</a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

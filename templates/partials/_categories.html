@@ -1,0 +1,27 @@
+<div class="card bg-body-tertiary border-secondary-subtle shadow-sm">
+    <div class="card-header border-secondary-subtle d-flex align-items-center justify-content-between">
+        <span class="fw-semibold text-uppercase small">
+            <i class="fa-solid fa-folder-tree me-2 text-info"></i>Categories
+        </span>
+        <a href="{% url 'app_articles:list' %}" class="small text-info text-decoration-none">All</a>
+    </div>
+    <div class="list-group list-group-flush">
+        {% for cat in sidebar_categories %}
+            <a href="{{ cat.get_absolute_url }}"
+               class="list-group-item list-group-item-action bg-transparent d-flex justify-content-between align-items-center py-2 px-3 {% if active_category and active_category.slug == cat.slug %}active fw-semibold{% endif %}">
+                <span class="text-truncate me-2">
+                    <i class="{{ cat.icon }} me-2 {% if not active_category or active_category.slug != cat.slug %}text-info{% endif %}"></i>
+                    {{ cat.name }}
+                </span>
+                <span class="badge rounded-pill {% if active_category and active_category.slug == cat.slug %}bg-dark text-info{% else %}bg-body-secondary text-body-secondary{% endif %}">
+                    {{ cat.published_count }}
+                </span>
+            </a>
+        {% empty %}
+            <div class="text-center text-body-secondary small py-4 px-2">
+                <i class="fa-regular fa-folder-open d-block fs-5 mb-1"></i>
+                No categories added yet.
+            </div>
+        {% endfor %}
+    </div>
+</div>

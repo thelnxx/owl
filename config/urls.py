@@ -13,10 +13,36 @@ Class-based views
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+
 """
+
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+from django.views.generic import TemplateView
+from app_core.views import offline_view
+
+handler404 = "app_core.views.custom_404_view"
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path(settings.ADMIN_URL, admin.site.urls),
+    path("", include("app_main.urls")),
+    path("account/", include("app_account.urls")),
+    path("articles/", include("app_articles.urls")),
+    path("offline/", offline_view, name="offline"),
+    path(
+        "sw.js",
+        TemplateView.as_view(
+            template_name="sw.js",
+            content_type="application/javascript",
+        ),
+        name="service_worker",
+),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)    
+
+# path("discord/",  include("app_discord.urls")),
+# path("updates/",  include("app_updates.urls")),

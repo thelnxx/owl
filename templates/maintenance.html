@@ -1,0 +1,109 @@
+{% extends "base_wh_bars.html" %}
+
+{% block title %}
+    {% if is_site_wide or site_settings.is_maintenance_mode %}
+        System Maintenance - {{ site_settings.site_title|default:"LnX Platform" }}
+    {% else %}
+        {{ maintenance_title|default:"Module Under Maintenance" }} - {{ site_settings.site_title|default:"LnX Platform" }}
+    {% endif %}
+{% endblock %}
+
+{% block main_layout %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+            {% if is_site_wide or site_settings.is_maintenance_mode %}
+            <!-- SITE-WIDE MAINTENANCE VIEW (No app-level links or details shown) -->
+            <div class="card bg-body-tertiary border-danger shadow-lg text-center">
+                <div class="card-body p-4 p-md-5">
+                    <div class="mb-3">
+                        <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-2 text-uppercase">
+                            <i class="fa-solid fa-server me-1"></i>System-Wide Maintenance
+                        </span>
+                    </div>
+                    <div class="display-4 text-danger mb-3">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                    </div>
+                    <h1 class="h3 fw-bold text-light mb-3">
+                        {{ site_settings.maintenance_title|default:maintenance_title }}
+                    </h1>
+                    <p class="text-secondary mb-4">
+                        {{ site_settings.maintenance_message|default:maintenance_message }}
+                    </p>
+
+                    {% if site_settings.maintenance_until or maintenance_until %}
+                    <div class="bg-dark border border-secondary-subtle rounded p-3 mb-3">
+                        <div class="small text-secondary text-uppercase mb-1">Estimated Completion</div>
+                        <div class="fw-semibold text-info">
+                            <i class="fa-regular fa-calendar-check me-2"></i>
+                            {{ site_settings.maintenance_until|default:maintenance_until|date:"F j, Y - H:i" }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if site_settings.updated_at or updated_at %}
+                    <div class="text-secondary small">
+                        Last status update: {{ site_settings.updated_at|default:updated_at|timesince }} ago
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% else %}
+            <!-- APP / SINGLE-PAGE MAINTENANCE VIEW -->
+            <div class="card bg-body-tertiary border-warning shadow-lg text-center">
+                <div class="card-body p-4 p-md-5">
+                    <div class="mb-3">
+                        <span class="badge bg-warning-subtle text-warning border border-warning px-3 py-2 text-uppercase">
+                            <i class="fa-solid fa-wrench me-1"></i>Module Under Maintenance
+                        </span>
+                    </div>
+                    <div class="display-4 text-warning mb-3">
+                        <i class="fa-solid fa-helmet-safety"></i>
+                    </div>
+                    <h1 class="h3 fw-bold text-light mb-3">
+                        {{ maintenance_title|default:"Module Under Maintenance" }}
+                    </h1>
+                    <p class="text-secondary mb-4">
+                        {{ maintenance_message|default:"This section is temporarily unavailable while we perform updates. Other sections of the platform remain operational." }}
+                    </p>
+
+                    {% if maintenance_until %}
+                    <div class="bg-dark border border-secondary-subtle rounded p-3 mb-4">
+                        <div class="small text-secondary text-uppercase mb-1">Estimated Completion</div>
+                        <div class="fw-semibold text-warning">
+                            <i class="fa-regular fa-clock me-2"></i>
+                            {{ maintenance_until|date:"F j, Y - H:i" }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Active Alternative Sections -->
+                    <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                        <a href="/" class="btn btn-outline-light btn-sm">
+                            <i class="fa-solid fa-house me-1"></i>Go Home
+                        </a>
+                        {% for link in navbar_links %}
+                            {% url link.url_name as resolved_url %}
+                            {% if not link.is_disabled and resolved_url %}
+                                <a href="{{ resolved_url }}" class="btn btn-outline-info btn-sm">
+                                    {{ link.title }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    {% if updated_at %}
+                    <div class="text-secondary small mt-4">
+                        Last status update: {{ updated_at|timesince }} ago
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

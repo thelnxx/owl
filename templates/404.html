@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}404 Page Not Found - {{ site_settings.site_title|default:"LnX Platform" }}{% endblock %}
+
+{% block main_layout %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card bg-body-tertiary border-secondary-subtle shadow-lg text-center">
+                <div class="card-body p-4 p-md-5">
+                    <div class="display-1 fw-bold text-info mb-2">404</div>
+                    <h1 class="h4 fw-bold text-light mb-3">Page Not Found</h1>
+                    <p class="text-secondary mb-3">
+                        The requested path <code class="text-warning bg-dark px-2 py-1 rounded">{{ requested_path }}</code> does not exist or has been moved.
+                    </p>
+
+                    {% if available_links %}
+                    <div class="border-top border-secondary-subtle pt-4 mt-4">
+                        <p class="small text-uppercase text-secondary fw-semibold mb-3">
+                            Available Sections You Can Visit
+                        </p>
+                        <div class="d-flex flex-wrap justify-content-center gap-2">
+                            {% for link in available_links %}
+                                {% url link.url_name as resolved_url %}
+                                {% if resolved_url %}
+                                    <a href="{{ resolved_url }}" class="btn btn-outline-info btn-sm">
+                                        {{ link.title }}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-info text-dark fw-semibold">
+                            <i class="fa-solid fa-arrow-left me-1"></i>Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

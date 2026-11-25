@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} - {{ site_settings.site_title|default:"LnX Platform" }}{% endblock %}
+
+{% block content %}
+<article class="card bg-body-tertiary border-secondary-subtle shadow-sm mb-3">
+    {% if article.cover_image %}
+        <img src="{{ article.cover_image.url }}" alt="{{ article.title }}"
+             class="card-img-top object-fit-cover" style="max-height: 320px;">
+    {% endif %}
+
+    <div class="card-body p-4">
+        <!-- Breadcrumb & Category -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <a href="{% url 'app_articles:list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-1"></i>Back to Articles
+            </a>
+
+            {% if article.category %}
+                <a href="{{ article.category.get_absolute_url }}"
+                   class="badge bg-info-subtle text-info border border-info text-decoration-none px-2 py-1">
+                    <i class="{{ article.category.icon }} me-1"></i>{{ article.category.name }}
+                </a>
+            {% endif %}
+        </div>
+
+        <h1 class="h3 fw-bold mb-3">{{ article.title }}</h1>
+
+        <!-- Metadata Bar -->
+        <div class="d-flex flex-wrap align-items-center gap-3 p-3 rounded bg-body border border-secondary-subtle small text-body-secondary mb-4">
+            <span>
+                <i class="fa-solid fa-user-pen text-info me-1"></i>Author:
+                <strong class="text-body">{{ article.author.username|default:"System" }}</strong>
+            </span>
+            <span>
+                <i class="fa-regular fa-calendar me-1"></i>Published:
+                <strong class="text-body">{{ article.created_at|date:"F j, Y - H:i" }}</strong>
+            </span>
+            {% if article.is_edited %}
+                <span class="text-warning">
+                    <i class="fa-solid fa-clock-rotate-left me-1"></i>Last updated:
+                    <strong>{{ article.updated_at|date:"F j, Y - H:i" }}</strong>
+                </span>
+            {% endif %}
+            <span class="ms-md-auto">
+                <i class="fa-regular fa-clock me-1"></i>{{ article.reading_time }} min read
+                &bull;
+                <i class="fa-regular fa-eye ms-1 me-1"></i>{{ article.views_count }} views
+            </span>
+        </div>
+
+        <!-- Article Content -->
+        <div class="article-body text-body lh-lg">
+            {{ article.content|linebreaks }}
+        </div>
+    </div>
+</article>
+
+{% if related_articles %}
+<div class="card bg-body-tertiary border-secondary-subtle shadow-sm">
+    <div class="card-header border-secondary-subtle">
+        <span class="fw-semibold small text-uppercase">
+            <i class="fa-solid fa-layer-group text-info me-2"></i>More in {{ article.category.name }}
+        </span>
+    </div>
+    <div class="list-group list-group-flush">
+        {% for rel in related_articles %}
+            <a href="{{ rel.get_absolute_url }}"
+               class="list-group-item list-group-item-action bg-transparent d-flex justify-content-between align-items-center">
+                <span class="fw-semibold small">{{ rel.title }}</span>
+                <span class="small text-body-secondary">{{ rel.created_at|date:"M j, Y" }}</span>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
