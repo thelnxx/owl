@@ -98,12 +98,37 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # ==========================================
 # DATABASE
 # ==========================================
-DATABASES = {
-    'default': dj_database_url.parse(
-        config('DATABASE_URL', default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
-        conn_max_age=600,
-    )
-}
+
+
+DATABASE_URL = config('DATABASE_URL', default='')
+
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=0,
+            ssl_require=True,
+        )
+    }
+    DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+    
+    
+# """
+# DATABASES = {
+#     'default': dj_database_url.parse(
+#         config('DATABASE_URL', default=''), # f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+#         conn_max_age=600,
+#     )
+# }
+# """
+
 
 # ==========================================
 # PASSWORD VALIDATION
@@ -164,7 +189,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ==========================================
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = config('SESSION_COOKIE_AGE', default=14400, cast=int)  # 240 minutes
-SESSION_SAVE_EVERY_REQUEST = True
+SESSION_SAVE_EVERY_REQUEST = False
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
